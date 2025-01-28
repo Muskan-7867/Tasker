@@ -1,57 +1,55 @@
 import React from 'react';
-import {TouchableOpacity, View, Text, StyleSheet} from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
 
+interface Todo {
+  id: number;
+  task: string;
+  completed: boolean;
+}
 
+interface ListitemProps {
+  todo: Todo;
+  toggleComplete: (id: number) => void;
+}
 
-const Listitem = ({todo, handleDelete, handleComplete}) => {
+const Listitem: React.FC<ListitemProps> = ({ todo, toggleComplete }) => {
   return (
-    <View style={styles.Listitem}>
-      <View style={{flex: 1}}>
-        <Text
-          style={{
-            fontWeight: 'bold',
-            color: '#1514fc',
-            fontSize: 14,
-            textDecorationLine: todo?.completed ? 'line-through' : 'none',
-          }}>
-          {todo?.task}
-        </Text>
-      </View>
+    <View style={styles.listItem}>
+      <BouncyCheckbox
+        isChecked={todo.completed}
+        size={25}
+        fillColor="black"
 
-      {!todo?.completed && (
-        <TouchableOpacity
-          style={styles.actionicon}
-          onPress={() => handleComplete(todo.id)}>
-          <Ionicons  name="done" size={20} color="white" />
-        </TouchableOpacity>
-      )}
-
-      <TouchableOpacity
-        style={[styles.actionicon, {backgroundColor: 'red'}]}
-        onPress={() => handleDelete(todo.id)}>
-        <Ionicons  name="delete" size={20} color="white" />
-      </TouchableOpacity>
+        text={todo.task}
+        textStyle={[
+          styles.taskText,
+          todo.completed && styles.completedTask,
+        ]}
+        iconStyle={{ borderColor: 'black' }}
+        onPress={() => toggleComplete(todo.id)}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  Listitem: {
-    padding: 20,
-
+  listItem: {
     flexDirection: 'row',
-
-    borderRadius: 7,
-    marginVertical: 10,
-  },
-  actionicon: {
-    height: 25,
-    width: 25,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'green',
-    marginLeft: 5,
-    borderRadius: 3,
+    backgroundColor: 'white',
+    marginVertical: 8,
+    padding: 15,
+    borderRadius: 10,
+    elevation: 2,
+  },
+  taskText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  completedTask: {
+    textDecorationLine: 'line-through',
+    color: '#888',
   },
 });
 

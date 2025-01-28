@@ -1,30 +1,35 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
-
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  Modal,
+} from 'react-native';
 import Listitem from './src/components/Listitem';
 
 const App = () => {
   const [todos, setTodos] = useState([
-    { id: 1, task: 'First Task', completed: true },
-    { id: 2, task: 'Second Task', completed: false },
+    { id: 1, task: 'Make Tutorial', completed: false },
+    { id: 2, task: 'Do Exercise', completed: false },
   ]);
   const [newTask, setNewTask] = useState('');
+  const [isModalVisible, setModalVisible] = useState(false);
 
   const addTodo = () => {
     if (newTask.trim()) {
       setTodos([...todos, { id: Date.now(), task: newTask, completed: false }]);
       setNewTask('');
+      setModalVisible(false);
     }
   };
 
-  const handleDelete = (id: any) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-  };
-
-  const handleComplete = (id: any) => {
+  const toggleComplete = (id: number) => {
     setTodos(
       todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: true } : todo
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
       )
     );
   };
@@ -32,11 +37,8 @@ const App = () => {
   return (
     <View style={styles.container}>
       {/* Title Section */}
-      <View style={styles.titlewrapper}>
+      <View style={styles.titleWrapper}>
         <Text style={styles.title}>Tasker</Text>
-        <TouchableOpacity onPress={() => setTodos([])}>
-          <Ionicons name="delete" size={25} color="red" />
-        </TouchableOpacity>
       </View>
 
       {/* List Section */}
@@ -44,30 +46,46 @@ const App = () => {
         data={todos}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <Listitem
-            todo={item}
-            handleDelete={handleDelete}
-            handleComplete={handleComplete}
-          />
+          <Listitem todo={item} toggleComplete={toggleComplete} />
         )}
+        contentContainerStyle={styles.listContainer}
       />
 
-      {/* input Section */}
-      <View style={styles.footer}>
-        <View style={styles.input}>
-          <TextInput
-            placeholder="Add Todo"
-            style={styles.textInput}
-            value={newTask}
-            onChangeText={(text) => setNewTask(text)}
-          />
-        </View>
-        <TouchableOpacity onPress={addTodo}>
-          <View style={styles.addIconContainer}>
-          <Ionicons name="add" size={30} color="white" />
+      {/* Floating Add Button */}
+      <TouchableOpacity
+        onPress={() => setModalVisible(true)}
+        style={styles.addButton}>
+        <Text style={styles.addButtonText}>+</Text>
+      </TouchableOpacity>
+
+      {/* Add Task Modal */}
+      <Modal
+        transparent={true}
+        visible={isModalVisible}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add a new task</Text>
+            <TextInput
+              placeholder="Enter task"
+              style={styles.modalInput}
+              value={newTask}
+              onChangeText={(text) => setNewTask(text)}
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.saveButton} onPress={addTodo}>
+                <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setModalVisible(false)}>
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </TouchableOpacity>
-      </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -75,51 +93,89 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9F9F9',
-    paddingHorizontal: 20,
+    backgroundColor: '#016764',
   },
-  titlewrapper: {
-    paddingTop: 80,
-    flexDirection: 'row',
+  titleWrapper: {
+    paddingTop: 50,
+    paddingBottom: 20,
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
   title: {
-    color: 'blue',
     fontSize: 24,
     fontWeight: 'bold',
+    color: 'white',
   },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  input: {
-    backgroundColor: 'white',
-    elevation: 5,
-    height: 50,
-    flex: 1,
-    marginVertical: 20,
-    marginRight: 10,
+  listContainer: {
     paddingHorizontal: 20,
-    marginLeft: 20,
-    borderRadius: 30,
-    justifyContent: 'center',
   },
-  textInput: {
-    fontSize: 16,
-  },
-  addIconContainer: {
-    backgroundColor: 'blue',
+  addButton: {
+    backgroundColor: 'black',
     height: 50,
     width: 50,
     borderRadius: 25,
-    alignItems: 'center',
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
     justifyContent: 'center',
-    elevation: 40,
+    alignItems: 'center',
+
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: 300,
+    backgroundColor: '#016764',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#333',
+  },
+  modalInput: {
+    width: '100%',
+    backgroundColor: 'white',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    fontSize: 16,
+    marginBottom: 20,
+    elevation: 2,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  saveButton: {
+    backgroundColor: 'white',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  cancelButton: {
+    backgroundColor: 'white',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: '#016764',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
 
