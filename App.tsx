@@ -34,6 +34,11 @@ const App = () => {
     );
   };
 
+  const deleteTodo = (id: number) => {
+    setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+  };
+
+
   return (
     <View style={styles.container}>
       {/* Title Section */}
@@ -46,7 +51,7 @@ const App = () => {
         data={todos}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <Listitem todo={item} toggleComplete={toggleComplete} />
+          <Listitem todo={item} toggleComplete={toggleComplete} deleteTodo={deleteTodo} />
         )}
         contentContainerStyle={styles.listContainer}
       />
@@ -74,14 +79,15 @@ const App = () => {
               onChangeText={(text) => setNewTask(text)}
             />
             <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.saveButton} onPress={addTodo}>
-                <Text style={styles.buttonText}>Save</Text>
-              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={() => setModalVisible(false)}>
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
+              <TouchableOpacity style={styles.saveButton} onPress={addTodo}>
+                <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
+
             </View>
           </View>
         </View>
@@ -143,7 +149,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 15,
-    color: '#333',
+    color: 'white',
   },
   modalInput: {
     width: '100%',
